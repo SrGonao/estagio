@@ -28,12 +28,12 @@ class Regressor(object):
             model.load_weights(name + "_" + str(i) + '.h5')
             model.compile(**self.compileArgs)
             self.ensemble.append(model)
-        print len(self.ensemble), "components found in ensemble"
-        with open(name + '_weights.pkl', 'r') as fin:
+        print(len(self.ensemble), "components found in ensemble")
+        with open(name + '_weights.pkl', 'rb') as fin:
             self.weights = pickle.load(fin)
-        with open(name + '_inputPipe.pkl', 'r') as fin:
+        with open(name + '_inputPipe.pkl', 'rb') as fin:
             self.inputPipe = pickle.load(fin)
-        with open(name + '_outputPipe.pkl', 'r') as fin:
+        with open(name + '_outputPipe.pkl', 'rb') as fin:
             self.outputPipe = pickle.load(fin)
         
     def evalResponse(self):
@@ -223,7 +223,7 @@ class HTTMassRegressor(Regressor):
             model.load_weights(name + "_" + str(i) + '.h5')
             model.compile(**self.compileArgs[mode])
             self.ensemble[mode].append(model)
-        print len(self.ensemble[mode]), "components found in ensemble"
+        print(len(self.ensemble[mode]), "components found in ensemble")
         with open(name + '_weights.pkl', 'r') as fin:
             self.weights[mode] = pickle.load(fin)
         with open(name + '_inputPipe.pkl', 'r') as fin:

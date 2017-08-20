@@ -1,1 +1,1 @@
-{"loss": "mse", "optimizer": "nadam"}
+{"optimizer": "nadam", "loss": "mse"}
