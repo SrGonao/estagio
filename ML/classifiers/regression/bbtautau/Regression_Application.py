@@ -115,8 +115,8 @@ class HHMomRegressor(Regressor):
     
     def getExtraVariables(self):
         prefix = self._regName + "diH_"
-        self.data[prefix + '|p|'] = np.sqrt(np.square(self.data.ix[:, prefix + 'px'])+np.square(self.data.ix[:, prefix + 'py'])+np.square(self.data.ix[:, prefix + 'pz']))
-        self.data[prefix + 'E'] = np.sqrt(np.square(self.data.ix[:, next(x for x in self.inputFeatures if "diH_mass" in x)])+np.square(self.data.ix[:, prefix + '|p|']))
+        self.data[prefix + '|p|'] = np.sqrt(np.square(self.data.loc[:, prefix + 'px'])+np.square(self.data.loc[:, prefix + 'py'])+np.square(self.data.loc[:, prefix + 'pz']))
+        self.data[prefix + 'E'] = np.sqrt(np.square(self.data.loc[:, next(x for x in self.inputFeatures if "diH_mass" in x)])+np.square(self.data.loc[:, prefix + '|p|']))
     
     def __init__(self, inData, name, mode):
         self._regName = "regHH_"
@@ -137,7 +137,7 @@ class HHRegressor(Regressor):
     
     def getExtraVariables(self):
         prefix = self._regName + "diH_"
-        self.data[prefix + 'E'] = np.sqrt(np.square(self.data.ix[:, 'regHH_diH_mass'])+np.square(self.data.ix[:, prefix + '|p|']))
+        self.data[prefix + 'E'] = np.sqrt(np.square(self.data.loc[:, 'regHH_diH_mass'])+np.square(self.data.loc[:, prefix + '|p|']))
     
     def __init__(self, inData, name, mode):
         self._regName = "regHH_"
