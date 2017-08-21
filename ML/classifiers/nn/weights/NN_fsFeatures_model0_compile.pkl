@@ -1,1 +1,1 @@
-{"loss": "binary_crossentropy", "optimizer": "adam"}
+{"optimizer": "adam", "loss": "binary_crossentropy"}
