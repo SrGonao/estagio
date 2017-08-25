@@ -71,7 +71,7 @@ class Regressor(object):
 
 class BPairRegressor(Regressor):    
     
-    def __init__(self, inData, name, mode):
+    def __init__(self, inData, name, mode, inputF):
         self._regName = "regB_"
         self.outputFeatures = [self._regName + x for x in ['b_0_px', 'b_0_py', 'b_0_pz', 'b_1_px', 'b_1_py', 'b_1_pz']]
         self._objects = ["b_0", "b_1"]
@@ -84,14 +84,13 @@ class BPairRegressor(Regressor):
         self.inputPipe = None
         self.outputPipe = None
         self.compileArgs = None
-        if mode == "mu_tau_b_b":
-            self.inputFeatures = ['t_0_mass', 't_1_mass', 'b_0_mass', 'b_1_mass', 'mT', 'hT', 'sT', 'centrality', 'eVis', 't_0_px', 't_0_py', 't_0_pz', 't_0_|p|', 't_0_E', 't_1_px', 't_1_py', 't_1_pz', 't_1_|p|', 't_1_E', 'b_0_px', 'b_0_py', 'b_0_pz', 'b_0_|p|', 'b_0_E', 'b_1_px', 'b_1_py', 'b_1_pz', 'b_1_|p|', 'b_1_E', 'mPT_px', 'mPT_py', 'mPT_|p|', 't_1_mT', 'h_tt_mass', 'h_bb_mass', 'diH_mass', 'h_tt_px', 'h_tt_py', 'h_tt_pz', 'h_tt_|p|', 'h_tt_E', 'h_bb_px', 'h_bb_py', 'h_bb_pz', 'h_bb_|p|', 'h_bb_E', 'diH_px', 'diH_py', 'diH_pz', 'diH_|p|', 'diH_E', 'hl_mT']
+        self.inputFeatures = inputF
         self.data = inData
         self._loadRegressor(name)
 
 class TauPairRegressor(Regressor):
     
-    def __init__(self, inData, name, mode):
+    def __init__(self, inData, name, mode,inputF):
         self._regName = "regTau_"
         self.outputFeatures = [self._regName + x for x in ['t_0_px', 't_0_py', 't_0_pz', 't_1_px', 't_1_py', 't_1_pz']]
         self._objects = ["t_0", "t_1"]
@@ -104,8 +103,7 @@ class TauPairRegressor(Regressor):
         self.inputPipe = None
         self.outputPipe = None
         self.compileArgs = None
-        if mode == "mu_tau_b_b":
-            self.inputFeatures = ['t_0_mass', 't_1_mass', 'b_0_mass', 'b_1_mass', 'mT', 'hT', 'sT', 'centrality', 'eVis', 't_0_px', 't_0_py', 't_0_pz', 't_0_|p|', 't_0_E', 't_1_px', 't_1_py', 't_1_pz', 't_1_|p|', 't_1_E', 'mPT_px', 'mPT_py', 'mPT_|p|', 't_1_mT', 'regB_b_0_px', 'regB_b_0_py', 'regB_b_0_pz', 'regB_b_1_px', 'regB_b_1_py', 'regB_b_1_pz', 'regB_b_0_|p|', 'regB_b_0_E', 'regB_b_1_|p|', 'regB_b_1_E', 'regB_h_bb_px', 'regB_h_bb_py', 'regB_h_bb_pz', 'regB_h_bb_E', 'regB_h_bb_|p|', 'regB_h_bb_mass', 'regB_diH_px', 'regB_diH_py', 'regB_diH_pz', 'regB_diH_E', 'regB_diH_|p|', 'regB_diH_mass', 'h_tt_mass', 'h_tt_px', 'h_tt_py', 'h_tt_pz', 'h_tt_|p|', 'h_tt_E', 'hl_mT']
+        self.inputFeatures = inputF
         self.data = inData
         self._loadRegressor(name)
         
@@ -118,7 +116,7 @@ class HHMomRegressor(Regressor):
         self.data[prefix + '|p|'] = np.sqrt(np.square(self.data.loc[:, prefix + 'px'])+np.square(self.data.loc[:, prefix + 'py'])+np.square(self.data.loc[:, prefix + 'pz']))
         self.data[prefix + 'E'] = np.sqrt(np.square(self.data.loc[:, next(x for x in self.inputFeatures if "diH_mass" in x)])+np.square(self.data.loc[:, prefix + '|p|']))
     
-    def __init__(self, inData, name, mode):
+    def __init__(self, inData, name, mode,inputF):
         self._regName = "regHH_"
         self.outputFeatures = [self._regName + x for x in ['diH_px', 'diH_py', 'diH_pz']]
         self.ensemble = []
@@ -126,8 +124,7 @@ class HHMomRegressor(Regressor):
         self.inputPipe = None
         self.outputPipe = None
         self.compileArgs = None
-        if mode == "mu_tau_b_b":
-            self.inputFeatures = ['t_0_mass', 'b_0_mass', 'b_1_mass', 'mT', 'hT', 'sT', 'centrality', 'eVis', 'mPT_px', 'mPT_py', 'mPT_|p|', 't_1_mT', 'regB_b_0_px', 'regB_b_0_py', 'regB_b_0_pz', 'regB_b_1_px', 'regB_b_1_py', 'regB_b_1_pz', 'regB_b_0_|p|', 'regB_b_0_E', 'regB_b_1_|p|', 'regB_b_1_E', 'regB_h_bb_px', 'regB_h_bb_py', 'regB_h_bb_pz', 'regB_h_bb_E', 'regB_h_bb_|p|', 'regB_h_bb_mass', 'regTau_t_0_px', 'regTau_t_0_py', 'regTau_t_0_pz', 'regTau_t_1_px', 'regTau_t_1_py', 'regTau_t_1_pz', 'regTau_t_0_|p|', 'regTau_t_0_E', 'regTau_t_1_|p|', 'regTau_t_1_E', 'regTau_h_tt_px', 'regTau_h_tt_py', 'regTau_h_tt_pz', 'regTau_h_tt_E', 'regTau_h_tt_|p|', 'regTau_h_tt_mass', 'regTau_diH_px', 'regTau_diH_py', 'regTau_diH_pz', 'regTau_diH_E', 'regTau_diH_|p|', 'regTau_diH_mass', 'hl_mT']
+        self.inputFeatures = inputF
         self.data = inData
         self._loadRegressor(name)
     
@@ -139,7 +136,7 @@ class HHRegressor(Regressor):
         prefix = self._regName + "diH_"
         self.data[prefix + 'E'] = np.sqrt(np.square(self.data.loc[:, 'regHH_diH_mass'])+np.square(self.data.loc[:, prefix + '|p|']))
     
-    def __init__(self, inData, name, mode):
+    def __init__(self, inData, name, mode, inputF):
         self._regName = "regHH_"
         self.outputFeatures = [self._regName + x for x in ['diH_mass']]
         self.ensemble = []
@@ -147,15 +144,7 @@ class HHRegressor(Regressor):
         self.inputPipe = None
         self.outputPipe = None
         self.compileArgs = None
-        if mode == "mu_tau_b_b":
-            self.inputFeatures = ['b_0_mass', 'b_1_mass', 't_0_mass', 't_1_mass', 'mPT_px', 'mPT_py', 'regB_b_0_px',
-                                  'regB_b_0_py', 'regB_b_0_pz', 'regB_b_1_px', 'regB_b_1_py', 'regB_b_1_pz', 'regB_b_0_|p|',
-                                  'regB_b_0_E', 'regB_b_1_|p|', 'regB_b_1_E', 'regB_h_bb_px', 'regB_h_bb_py', 'regB_h_bb_pz',
-                                  'regB_h_bb_E', 'regB_h_bb_|p|', 'regB_h_bb_mass', 'regTau_t_0_px', 'regTau_t_0_py',
-                                  'regTau_t_0_pz', 'regTau_t_1_px', 'regTau_t_1_py', 'regTau_t_1_pz', 'regTau_t_0_|p|',
-                                  'regTau_t_0_E', 'regTau_t_1_|p|', 'regTau_t_1_E', 'regTau_h_tt_px', 'regTau_h_tt_py',
-                                  'regTau_h_tt_pz', 'regTau_h_tt_E', 'regTau_h_tt_|p|', 'regTau_h_tt_mass', 'regHH_diH_px',
-                                  'regHH_diH_py', 'regHH_diH_pz', 'regHH_diH_|p|', 'regHH_diH_E', 'hl_mT', 'regTau_diH_mass']
+        self.inputFeatures = inputF
         self.data = inData
         self._loadRegressor(name)
         
