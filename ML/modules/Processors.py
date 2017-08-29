@@ -62,7 +62,31 @@ def addEnergy(inData, particle):
 def addMT(inData, pT, phi, name):
     inData[name + '_mT'] = np.sqrt(2 * pT * inData['mPT_pT'] * (1 - np.cos(deltaphi(phi, inData['mPT_phi']))))
 
+def addHighLvl(inData):
+    finalStates = ['b_0', 'b_1', 't_0', 't_1']
+    recoObjects = ['diH', 'h_bb', 'h_tt']
+    variables = ['px', 'py', 'pz']
+    for fs1 in finalStates:
+        for fs2 in finalStates:
+            if fs1 == fs2: continue
+            for var in variables:
+                inData['hl_d' + var + '_' + fs1 + '_' + fs2] = inData.loc[:, fs1 + '_' + var] - inData.loc[:, fs2 + '_' + var]
+        inData['hl_dpx_' + fs1 + '_mPT'] = inData.loc[:, fs1 + '_px'] - inData.loc[:, 'mPT_px']
+        inData['hl_dpy_' + fs1 + '_mPT'] = inData.loc[:, fs1 + '_py'] - inData.loc[:, 'mPT_py']
+        inData[fs1 + '_|p|'] = np.sqrt(np.square(inData.loc[:, fs1 + '_px'])+np.square(inData.loc[:, fs1 + '_py'])+np.square(inData.loc[:, fs1 + '_pz']))
+        inData[fs1 + '_E'] = np.sqrt(np.square(inData.loc[:, fs1 + '_mass'])+np.square(inData.loc[:, fs1 + '_|p|']))
+    for fs1 in recoObjects:
+        for fs2 in recoObjects:
+            if fs1 == fs2: continue
+            for var in variables:
+                inData['hl_d' + var + '_' + fs1 + '_' + fs2] = inData.loc[:, fs1 + '_' + var] - inData.loc[:, fs2 + '_' + var]
+        inData['hl_dpx_' + fs1 + '_mPT'] = inData.loc[:, fs1 + '_px'] - inData.loc[:, 'mPT_px']
+        inData['hl_dpy_' + fs1 + '_mPT'] = inData.loc[:, fs1 + '_py'] - inData.loc[:, 'mPT_py']
     
+
+
+
+
 def fixData(inData):
     if not inData['gen_target'][0]:
         inData.rename(columns={'weight': 'gen_weight'}, inplace=True)
