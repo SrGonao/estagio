@@ -14,10 +14,11 @@ def calculateFOM(len_signals, len_backgounds, signalIdx, backgroundIdx, FOMselec
     for i, background in enumerate(len_backgounds):
         s_background += background * backgroundXSec[backgroundIdx[i]] / backgroundFullSize[backgroundIdx[i]] * luminosity
 
-    if s_background != 0 and not FOMselector:
-        return signalSignificanceSelector(s_signal) / sqrt(s_background)
-    elif s_background != 0:
-        return FOMselector(s_signal) / sqrt(s_background)
+    if sum(len_backgounds) > 20:
+        if FOMselector:
+            return FOMselector(s_signal) / sqrt(s_background)
+        else:
+            return signalSignificanceSelector(s_signal) / sqrt(s_background)
     else:
         return -1
 
