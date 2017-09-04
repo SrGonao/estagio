@@ -148,29 +148,55 @@ class HHRegressor(Regressor):
         self.data = inData
         self._loadRegressor(name)
         
+class SO_HHRegressor(Regressor):
+
+    refineDiHiggsVector = None
+    
+    def getExtraVariables(self):
+        prefix = "regHH_" + "diH_"
+        self.data[prefix + 'E'] = np.sqrt(np.square(self.data.loc[:, 'regHH_SO_diH_mass'])+np.square(self.data.loc[:, prefix + '|p|']))
+    
+    def __init__(self, inData, name, mode, inputF):
+        self._regName = "regHH_SO_"
+        self.outputFeatures = [self._regName + x for x in ['diH_mass']]
+        self.ensemble = []
+        self.weights = None
+        self.inputPipe = None
+        self.outputPipe = None
+        self.compileArgs = None
+        self.inputFeatures = inputF
+        self.data = inData
+        self._loadRegressor(name)
+        
 class HBBMassRegressor(Regressor):
 
     refineDiHiggsVector = None
-
-    def _setNames(self):
-        self.inputFeatures0 = list(self._inputFeatures)
-        self.inputFeatures1 = list(self._inputFeatures)
-        for i in range(len(self.inputFeatures1 )):
-            if "b_0" in self.inputFeatures1 [i]:
-                self.inputFeatures1 [i] = self.inputFeatures1 [i][0:self.inputFeatures1 [i].find("b_0")] + "b_1" + self.inputFeatures1 [i][self.inputFeatures1 [i].find("b_0")+3:]
-        self.outputFeatures0 = list(self._outputFeatures)
-        self.outputFeatures1 = list(self._outputFeatures)
-        for i in range(len(self.outputFeatures1)):
-            if "b_0" in self.outputFeatures1[i]:
-                self.outputFeatures1[i] = self.outputFeatures1[i][0:self.outputFeatures1[i].find("b_0")] + "b_1" + self.outputFeatures1[i][self.outputFeatures1[i].find("b_0")+3:]       
+    
+    
+    def _loadRegressor(self, name, mode):
+        with open(name + str(mode) + '_compile.json', 'r') as fin:
+                                    self.compileArgs[mode] = json.load(fin)
+        for i in range(len(glob.glob(name + "*_" + str(mode)+ '.h5'))):
+            model = model_from_json(open(name + '_' + str(i) + "_" + str(mode) +'.json').read())
+            model.load_weights(name + '_' + str(i) + "_" + str(mode) + '.h5')
+            model.compile(**self.compileArgs[mode])
+            self.ensemble[mode].append(model)
+        print(len(self.ensemble[mode]), "components found in ensemble")
+        with open(name + str(mode) + '_weights.pkl', 'r') as fin:
+            self.weights[mode] = pickle.load(fin)
+        with open(name + str(mode) + '_inputPipe.pkl', 'r') as fin:
+            self.inputPipe[mode] = pickle.load(fin)
+        with open(name + str(mode) + '_outputPipe.pkl', 'r') as fin:
+            self.outputPipe[mode] = pickle.load(fin)
+                 
         
     def evalResponse(self):
         pred0 = np.zeros((len(self.data), len(self.outputFeatures0)))
-        for i, model in enumerate(self.ensemble):
-            pred0 += self.weights[i]*self.outputPipe.inverse_transform(model.predict(self.inputPipe.transform(self.data[self.inputFeatures0].values.astype(theano.config.floatX)), verbose=0))
+        for i, model in enumerate(self.ensemble[0]):
+            pred0 += self.weights[0][i]*self.outputPipe[0].inverse_transform(model.predict(self.inputPipe[0].transform(self.data[self.inputFeatures0].values.astype(theano.config.floatX)), verbose=0))
         pred1 = np.zeros((len(self.data), len(self.outputFeatures1)))
-        for i, model in enumerate(self.ensemble):
-            pred1 += self.weights[i]*self.outputPipe.inverse_transform(model.predict(self.inputPipe.transform(self.data[self.inputFeatures1].values.astype(theano.config.floatX)), verbose=0))
+        for i, model in enumerate(self.ensemble[1]):
+            pred1 += self.weights[1][i]*self.outputPipe[1].inverse_transform(model.predict(self.inputPipe[1].transform(self.data[self.inputFeatures1].values.astype(theano.config.floatX)), verbose=0))
         for n, feature in enumerate(self.outputFeatures0):
             self.data[feature] = pandas.Series(pred0[:,n], index=self.data.index)
         for n, feature in enumerate(self.outputFeatures1):
@@ -181,28 +207,37 @@ class HBBMassRegressor(Regressor):
         self._objects = ["b_0", "b_1"]
         self._combinedObject = "h_bb"
         self._mass = 4.8
-        self.ensemble = []
-        self.weights = None
-        self.inputPipe = None
-        self.outputPipe = None
-        self.compileArgs = None
+        self.ensemble = [[], []]
+        self.weights = [None, None]
+        self.inputPipe = [None, None]
+        self.outputPipe = [None, None]
+        self.compileArgs = [None, None]
         if mode == "mu_tau_b_b":
-            self._inputFeatures = ['b_0_mass', 'b_0_px', 'b_0_py', 'b_0_pz', 'b_0_|p|', 'b_0_E',
-                                  'mPT_px', 'mPT_py',
-                                  'h_bb_E',
-                                  't_0_mass', 't_0_px', 't_0_py', 't_0_pz', 't_0_|p|', 't_0_E',
-                                  't_1_mass', 't_1_px', 't_1_py', 't_1_pz', 't_1_|p|', 't_1_E',
-                                  'hl_mT',
-                                  'h_tt_mass', 'h_tt_px', 'h_tt_py', 'h_tt_pz', 'h_tt_|p|', 'h_tt_E',
-                                  'diH_E', 'diH_|p|', 'diH_mass']
-        self._outputFeatures = [self._regName + x for x in ['b_0_px', 'b_0_py', 'b_0_pz']]  
-        self._setNames()     
+            self.inputFeatures0 = ['b_0_mass', 'b_0_px', 'b_0_py', 'b_0_pz', 'b_0_|p|', 'b_0_E',
+        'mPT_px', 'mPT_py',
+        'h_bb_E',
+        't_0_mass', 't_0_px', 't_0_py', 't_0_pz', 't_0_|p|', 't_0_E',
+        't_1_mass', 't_1_px', 't_1_py', 't_1_pz', 't_1_|p|', 't_1_E',
+        'hl_mT',
+        'h_tt_mass', 'h_tt_px', 'h_tt_py', 'h_tt_pz', 'h_tt_|p|', 'h_tt_E',
+        'diH_E', 'diH_|p|', 'diH_mass']
+            self.inputFeatures1 = ['b_1_mass', 'b_1_px', 'b_1_py', 'b_1_pz', 'b_1_|p|', 'b_1_E',
+        'mPT_px', 'mPT_py',
+        'h_bb_E',
+        't_0_mass', 't_0_px', 't_0_py', 't_0_pz', 't_0_|p|', 't_0_E',
+        't_1_mass', 't_1_px', 't_1_py', 't_1_pz', 't_1_|p|', 't_1_E',
+        'hl_mT',
+        'h_tt_mass', 'h_tt_px', 'h_tt_py', 'h_tt_pz', 'h_tt_|p|', 'h_tt_E',
+        'diH_E', 'diH_|p|', 'diH_mass']
+        self.outputFeatures0 = [self._regName + x for x in ['b_0_px', 'b_0_py', 'b_0_pz']]  
+        self.outputFeatures1 = [self._regName + x for x in ['b_1_px', 'b_1_py', 'b_1_pz']]
         self.data = inData
-        self._loadRegressor(name)
+        self._loadRegressor(name, 0)
+        self._loadRegressor(name, 1)
 
 class HTTMassRegressor(Regressor):
 
-    refineDiHiggsVector = None
+    #refineDiHiggsVector = None
 
     def _loadRegressor(self, name, mode):
         with open(name + '_compile.json', 'r') as fin:
@@ -242,6 +277,8 @@ class HTTMassRegressor(Regressor):
         self.inputPipe = [None, None]
         self.outputPipe = [None, None]
         self.compileArgs = [None, None]
+        self._prefixB = 'regHBB_h_bb_'
+        self._prefixT = 'regHTT_h_tt_'
         if mode == "mu_tau_b_b":
             self.inputFeatures0 = ['t_0_mass', 't_0_px', 't_0_py', 't_0_pz', 't_0_|p|', 't_0_E',
                                       'mPT_px', 'mPT_py',

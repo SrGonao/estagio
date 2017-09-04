@@ -61,7 +61,7 @@ I-1
 I0
 tp28
 bI00
-S"\xee\xdf\xfc\xbfX\xe5\xfc\xbf\xea\x9a!\xc0\xdd\xedS?\x04\x91\xed\xbf'yO\xbf"
+S"2'+\xc0fXE\xbfy\x95\xdd\xc0~\x86\x11\xbeY\xd2\xce\xbf,\x9d\x16\xc0"
 p29
 tp30
 bsS'with_mean'
@@ -81,7 +81,7 @@ Rp35
 tp36
 g26
 I00
-S'\xf6+pF&dkF\xcdUgGc\xfa^E?\xccfE\x7fg\x84F'
+S'9\xa7kF%idF\xcd\xe5[G\x1f\xa0VErv]E\xd9\x10uF'
 p37
 tp38
 bsS'scale_'
@@ -98,7 +98,7 @@ Rp42
 tp43
 g26
 I00
-S'\xa8\xf5\xf7B\xbcz\xf5B\xf5ZsCQ\xebnB\x90\x12sB\xfb.\x02C'
+S"\xb3\x9d\xf5B\xed\xcf\xf1B^CmC\xd1fjB \x1bnB'y\xfaB"
 p44
 tp45
 bsS'with_std'
@@ -106,7 +106,7 @@ p46
 I01
 sS'n_samples_seen_'
 p47
-I3705
+I3928
 sg6
 g7
 sS'copy'
