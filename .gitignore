@@ -2,3 +2,9 @@ ML/modules/__pycache__
 ML/classifiers/regression/bbtautau/__pycache__
 ML/classifiers/bdt/all
 ML/classifiers/bdt/allMinusKinFitProb
+ML/classifiers/Data
+ML/classifiers/regression/bbtautau/Data
+data_n
+ML/classifiers/regression/bbtautau (copy)/
+ML/classifiers/regression/bbtautau/MPPlot.pyc
+ML/classifiers/regression/bbtautau/Regression_Application.pyc
