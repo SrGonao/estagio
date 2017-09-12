@@ -127,7 +127,29 @@ class HHMomRegressor(Regressor):
         self.inputFeatures = inputF
         self.data = inData
         self._loadRegressor(name)
+
+class HHMomRegressorSO(Regressor):
+
+    refineDiHiggsVector = None
     
+    def getExtraVariables(self):
+        prefix = self._regName + "diH_"
+        self.data[prefix + '|p|'] = np.sqrt(np.square(self.data.loc[:, prefix + 'px'])+np.square(self.data.loc[:, prefix + 'py'])+np.square(self.data.loc[:, prefix + 'pz']))
+        self.data[prefix + 'E'] = np.sqrt(np.square(self.data.loc[:, next(x for x in self.inputFeatures if "diH_mass" in x)])+np.square(self.data.loc[:, prefix + '|p|']))
+    
+    def __init__(self, inData, name, mode,inputF):
+        self._regName = "regHH_SO_"
+        self.outputFeatures = [self._regName + x for x in ['diH_px', 'diH_py', 'diH_pz']]
+        self.ensemble = []
+        self.weights = None
+        self.inputPipe = None
+        self.outputPipe = None
+        self.compileArgs = None
+        self.inputFeatures = inputF
+        self.data = inData
+        self._loadRegressor(name)
+        
+        
 class HHRegressor(Regressor):
 
     refineDiHiggsVector = None
@@ -147,6 +169,26 @@ class HHRegressor(Regressor):
         self.inputFeatures = inputF
         self.data = inData
         self._loadRegressor(name)
+        
+class HHRegressorSO(Regressor):
+
+    refineDiHiggsVector = None
+    
+    def getExtraVariables(self):
+        prefix = self._regName + "diH_"
+        self.data[prefix + 'E'] = np.sqrt(np.square(self.data.loc[:, 'regHH_diH_mass'])+np.square(self.data.loc[:, prefix + '|p|']))
+    
+    def __init__(self, inData, name, mode, inputF):
+        self._regName = "regHH_SO_"
+        self.outputFeatures = [self._regName + x for x in ['diH_mass']]
+        self.ensemble = []
+        self.weights = None
+        self.inputPipe = None
+        self.outputPipe = None
+        self.compileArgs = None
+        self.inputFeatures = inputF
+        self.data = inData
+        self._loadRegressor(name)        
         
 class HBBMassRegressor(Regressor):
 
